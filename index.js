@@ -1,6 +1,8 @@
 const express = require("express");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
+const Joi = require("joi");
+const cors = require("cors");
 require("dotenv").config();
 // create an express application
 const app = express();
@@ -9,6 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cors());
 const mongoose = require("mongoose");
 
 // Connection to database
@@ -31,7 +34,7 @@ mongoose
     console.error(`Error connecting to the database. n${err}`);
   });
 
-// Render static files
+// Render static files, middleware
 app.use(express.static("public"));
 
 // To render views
@@ -54,11 +57,24 @@ app.use("/users", userRouter);
 
 app.use("/customer", customerRouter);
 
-// middleware
+// middleware function
+// middleware executes directly after the client hits the endpoint, before anything else
+// takes place
 function logger(req, res, next) {
   console.log(req.originalUrl);
   next();
 }
 
+//input validation
+// const schema = {
+//   name: Joi.string().min(3).required
+// }
+// const result = Joi.validate(req.body, schema)
+// if(result.error)
+
+// 404 if item doesn't exist on a search from db
+// 400 if validation reutrns an error, bad request
+
+const port = process.env.PORT || 3001;
 // Start server
-app.listen(3001, () => console.log("listing on port 3001"));
+app.listen(port, () => console.log(`listing on port ${port}`));
